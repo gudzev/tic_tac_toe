@@ -159,7 +159,7 @@
         {
             width: 415px;
             height: 70px;
-            background-color: var(--main);
+            background: linear-gradient(0.25turn, var(--player-x), var(--player-o));
             border: none;
             border-radius: 40px;
             cursor: pointer;
@@ -355,7 +355,7 @@
             {
                 width: 100%;
                 height: 50px;
-                background-color: var(--main);
+                background: linear-gradient(0.25turn, var(--player-x), var(--player-o));
                 border: none;
                 border-radius: 40px;
                 cursor: pointer;
@@ -546,6 +546,9 @@
         {
            currentGameType = gameType[1];
            gameTypeContainer.classList.add("hidden");
+           gameStatus.classList.remove("hidden");
+           currentPlayerLabel.textContent = "X";
+           loadGame();
         });
 
         // ChatGPT pomogao zbog cudnog ponasanja eventListenera i nemogucnosti da se skloni
@@ -567,27 +570,70 @@
 
         function playMove(index, currentPlayer)
         {
-            if(!fields[index].innerText)
-            {
-                fields[index].innerText = currentPlayer;
-                switchPlayer();
-                numberOfClicks++;
+                if(!fields[index].innerText)
+                {
+                    fields[index].innerText = currentPlayer;
+                    numberOfClicks++;
 
-                if(fields[index].innerText === "X")
-                {
-                    fields[index].style.backgroundColor = xColor;
+                    if(currentGameType === "local")
+                    {
+                        switchPlayer();
+                    }
+                    else
+                    {
+                        AiPlayMove();
+                    }
+
+                    if(fields[index].innerText === "X")
+                    {
+                        fields[index].style.backgroundColor = xColor;
+                    }
+                    else
+                    {
+                        fields[index].style.backgroundColor = oColor;
+                    }
                 }
-                else
+
+                if(numberOfClicks >= 5)
                 {
-                    fields[index].style.backgroundColor = oColor;
+                    console.log("check winner");
+                    checkWinner();
                 }
+        }
+
+        function AiPlayMove()
+        {
+            switchPlayer();
+
+            let possibleMoves = [];
+
+            fields.forEach((child, index) => 
+            {
+                if(child.textContent === "")
+                {
+                    possibleMoves.push(index);
+                }
+            });
+
+            if (possibleMoves.length === 0) 
+            {
+                return;
             }
+
+            let AiMoveIndex = possibleMoves[Math.floor(Math.random() * (possibleMoves.length))];
+            let AiMove = fields[AiMoveIndex].innerText = currentPlayer;
+            
+            numberOfClicks++;
+
+            fields[AiMoveIndex].style.backgroundColor = oColor;
 
             if(numberOfClicks >= 5)
             {
                 console.log("check winner");
                 checkWinner();
             }
+
+            switchPlayer();
         }
 
         function switchPlayer()
